@@ -17,9 +17,9 @@ ext {
     constraint_layout_version = '2.0.2'
 
     // Third-party
-    gson_version = '2.8.5'
+    gson_version = '2.8.6'
     koin_version = '2.0.1'
-    retrofit_version = '2.6.1'
+    retrofit_version = '2.9.0'
     rx_android_version = '2.1.1'
     rx_java_version = '2.2.7'
     glide_version = '4.9.0'

@@ -18,11 +18,18 @@ android {
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+            buildConfigField("String", "BASE_URL","https://dl.dropboxusercontent.com/")
+        }
         release {
+            applicationIdSuffix ".release"
+            buildConfigField("String", "BASE_URL","https://dl.dropboxusercontent.com/")
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -53,6 +60,7 @@ dependencies {
 
     // GSON
     implementation "com.google.code.gson:gson:$gson_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
 
     // Retrofit
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
