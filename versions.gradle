@@ -1,0 +1,38 @@
+ext {
+    // Basics
+    gradle_plugin_version = '3.6.4'
+    kotlin_coroutines_version = '1.3.9'
+    kotlin_version = '1.4.0'
+
+    // Module setup
+    minSDK = 23
+    targetSDK = 30
+
+    // Google
+    android_material_version = '1.1.0'
+    androidx_appcompat_version = '1.0.2'
+    androidx_core_ktx_version = '1.1.0'
+    androidx_legacy_support_version = '1.0.0'
+    androidx_version = '1.0.0'
+    constraint_layout_version = '2.0.2'
+
+    // Third-party
+    gson_version = '2.8.5'
+    koin_version = '2.0.1'
+    retrofit_version = '2.6.1'
+    rx_android_version = '2.1.1'
+    rx_java_version = '2.2.7'
+    glide_version = '4.9.0'
+
+    // Testing
+    android_juinit5_plugin_version = '1.5.1.0'
+    androidx_arch_core_testing_version = '2.0.1'
+    androidx_test_core_version = '1.2.0'
+    junit4_version = '4.12'
+    mockito_version = '2.27.0'
+    mockito_kotlin_version = '2.1.0'
+    robolectric_version = '4.3'
+    test_runner_version = '1.1.1'
+    mockk_version = '1.9.3'
+    kotlinx_coroutines_test_version = '1.3.2'
+}
