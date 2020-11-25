@@ -1,3 +1,16 @@
 <resources>
+
+    <dimen name="text_size_title">20sp</dimen>
+    <dimen name="text_size_description">16sp</dimen>
+
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="description_width">200dp</dimen>
+
+    <dimen name="button_height">100dp</dimen>
+    <dimen name="image_height">100dp</dimen>
+    <dimen name="image_width">100dp</dimen>
+
+    <dimen name="margin_10dp">10dp</dimen>
+    <dimen name="margin_20dp">20dp</dimen>
+
 </resources>
