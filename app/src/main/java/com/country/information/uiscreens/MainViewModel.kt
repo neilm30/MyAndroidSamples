@@ -6,7 +6,7 @@ import com.country.information.coroutines.OnCancelException
 import com.country.information.coroutines.OnError
 import com.country.information.coroutines.OnSuccess
 import com.country.information.coroutines.ViewModelScope
-import com.country.information.networking.ApiRepository
+import com.country.information.networking.CountryInfoEntryPointApi
 import com.country.information.networking.model.response.CountryInformation
 import com.country.information.networking.model.response.Rows
 import kotlinx.coroutines.Dispatchers
@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.KoinComponent
 
-class MainViewModel(private val apiRepository: ApiRepository, private val countryTextMapper: CountryTextMapper) : ViewModel(), ViewModelScope {
+class MainViewModel(private val apiRepository: CountryInfoEntryPointApi, private val countryTextMapper: CountryTextMapper) : ViewModel(), ViewModelScope {
 
     // live data to post success data
     val responseData = MutableLiveData<Pair<List<Rows>, String>>()
@@ -28,9 +28,9 @@ class MainViewModel(private val apiRepository: ApiRepository, private val countr
 
     /*synchronous network call which will run on the IO dispathcer.For asynchronous we can use "async"*/
 
-     fun createNetworkJob(limit: Int = DEFAULT_REQUEST_ITEMS_SIZE) = launch(Dispatchers.IO) {
+     fun createNetworkJob(pagelimit: Int = DEFAULT_REQUEST_ITEMS_SIZE) = launch(Dispatchers.IO) {
         resultOf {
-            apiRepository.fetchCountryDetails()
+            apiRepository.fetchCountryDetails(pagelimit)
         }.let { result ->
                 when (result) {
                     is OnSuccess<CountryInformation> -> handleResponseSuccess(result.get())
