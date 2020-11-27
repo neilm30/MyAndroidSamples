@@ -6,7 +6,6 @@ import com.country.information.coroutines.OnCancelException
 import com.country.information.coroutines.OnError
 import com.country.information.coroutines.OnSuccess
 import com.country.information.coroutines.ViewModelScope
-import com.country.information.coroutines.ViewModelScope.Companion.ViewModelScopeContext
 import com.country.information.networking.ApiRepository
 import com.country.information.networking.model.response.CountryInformation
 import com.country.information.networking.model.response.Rows
@@ -15,8 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.KoinComponent
 
-class MainViewModel(private val apiRepository: ApiRepository, private val countryTextMapper: CountryTextMapper) : ViewModel(), ViewModelScope,
-    KoinComponent {
+class MainViewModel(private val apiRepository: ApiRepository, private val countryTextMapper: CountryTextMapper) : ViewModel(), ViewModelScope {
 
     // live data to post success data
     val responseData = MutableLiveData<Pair<List<Rows>, String>>()
@@ -30,7 +28,7 @@ class MainViewModel(private val apiRepository: ApiRepository, private val countr
 
     /*synchronous network call which will run on the IO dispathcer.For asynchronous we can use "async"*/
 
-     fun createNetworkJob() = launch(Dispatchers.IO) {
+     fun createNetworkJob(limit: Int = DEFAULT_REQUEST_ITEMS_SIZE) = launch(Dispatchers.IO) {
         resultOf {
             apiRepository.fetchCountryDetails()
         }.let { result ->
@@ -61,7 +59,11 @@ class MainViewModel(private val apiRepository: ApiRepository, private val countr
     // handle error response and send it to observer
     private fun handleResponseException(exception: Throwable) {
         exception.printStackTrace()
-        errorData.value = countryTextMapper.getErrorMessage()
+        errorData.postValue(countryTextMapper.getErrorMessage())
+    }
+
+    companion object{
+        const val DEFAULT_REQUEST_ITEMS_SIZE = 10
     }
 }
 

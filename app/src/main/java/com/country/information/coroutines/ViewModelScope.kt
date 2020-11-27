@@ -9,10 +9,6 @@ import java.util.concurrent.CancellationException
 import kotlin.coroutines.CoroutineContext
 
 interface ViewModelScope : CoroutineScope {
-    companion object {
-        @VisibleForTesting
-        var ViewModelScopeContext = Dispatchers.IO
-    }
 
     override val coroutineContext: CoroutineContext
         get() = Main

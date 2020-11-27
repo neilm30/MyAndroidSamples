@@ -19,7 +19,7 @@ class CountryInfoService {
     }
 
     private fun createHttpClient() = okhttp3.OkHttpClient.Builder()
-        .callTimeout(NETWORK_TIMEOUT, TimeUnit.SECONDS).build()
+        .callTimeout(NETWORK_TIMEOUT, TimeUnit.SECONDS).retryOnConnectionFailure(true).build()
 
     companion object {
         const val NETWORK_TIMEOUT = 20L

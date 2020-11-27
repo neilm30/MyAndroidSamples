@@ -1,5 +1,6 @@
 package com.country.information.uiscreens
 
+import EndlessRecyclerViewScrollListener
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.country.information.R
 import com.country.information.extensions.isConnectedToInternet
 import com.country.information.networking.model.response.Rows
-import com.example.myapplication.adapater.CustomAdapter
+import com.country.information.uiscreens.adapater.CustomAdapter
 import kotlinx.android.synthetic.main.activity_recyclerview.*
 import org.koin.android.viewmodel.ext.android.sharedViewModel
 
@@ -25,8 +26,9 @@ import org.koin.android.viewmodel.ext.android.sharedViewModel
 class CountryListFragment : Fragment() {
 
     private val mainViewModel: MainViewModel by sharedViewModel()
-    private lateinit var listadapter: CustomAdapter
+    private lateinit var listAdapter: CustomAdapter
     private var rowsList = mutableListOf<Rows>()
+    private var pageLimit = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,19 +55,48 @@ class CountryListFragment : Fragment() {
         recyclerView_countrydetails.apply {
             layoutManager = LinearLayoutManager(context)
             addItemDecoration(getItemDecoration())
-            listadapter = CustomAdapter(rowsList)
-            adapter = listadapter
+
+            // initalize and set adapter
+            initAdapter()
+
+            initScrollListener()
         }
 
         //getting swipe to refresh from xml
         swipeRefreshLayout.apply {
             setOnRefreshListener {
+                // code to refresh the list here.calling swipeContainer.setRefreshing(false)
+                // once the network request has completed successfully. clear items before appending in the new ones
+                listAdapter.clearRowItems()
                 checkIfNetworkConnectionAvailable()
             }
         }
 
         subscribeToCountryListEvent()
     }
+
+    //
+    private fun initScrollListener() {
+
+        recyclerView_countrydetails.addOnScrollListener( object : EndlessRecyclerViewScrollListener(recyclerView_countrydetails.layoutManager as LinearLayoutManager) {
+            override fun onLoadMore(page: Int, totalItemsCount: Int) {
+                // Triggered only when new data needs to be appended to the bottom of the list
+                pageLimit = page
+                checkIfNetworkConnectionAvailable()
+            }
+        })
+    }
+
+
+    // initalize and set adapater.The list will be empty for the first time
+    private fun initAdapter() {
+        CustomAdapter().apply {
+            listAdapter = this
+            recyclerView_countrydetails.adapter = listAdapter
+            updateRowItems(rowsList)
+        }
+    }
+
 
     // add divider between rows
     private fun getItemDecoration(): DividerItemDecoration {
@@ -84,7 +115,7 @@ class CountryListFragment : Fragment() {
     private fun checkIfNetworkConnectionAvailable() {
         when (activity?.baseContext?.isConnectedToInternet()) {
             true -> {
-                mainViewModel.createNetworkJob()
+                mainViewModel.createNetworkJob(pageLimit)
                 textView.visibility = View.GONE
                 recyclerView_countrydetails.visibility = View.VISIBLE
             }
@@ -102,17 +133,13 @@ class CountryListFragment : Fragment() {
     // subscribe and listen for response from viewmodel
     private fun subscribeToCountryListEvent() {
 
-        //onbserve for success response and update listview
+        //observe for success response and update listview
         mainViewModel.responseData.observe(viewLifecycleOwner, Observer {
             //set action bar title
             (activity as AppCompatActivity?)?.supportActionBar?.title = it.second
 
-          //  rowsList.clear()
-            it.first.forEach {
-                rowsList.add(it)
-            }
-            //progressbar.visibility = View.GONE
-            listadapter.notifyDataSetChanged()
+            //the data is available, add new items to your adapter
+            listAdapter.updateRowItems(it.first)
 
             // dismiss the refresh loading
             swipeRefreshLayout.isRefreshing = false
@@ -126,4 +153,5 @@ class CountryListFragment : Fragment() {
             swipeRefreshLayout.isRefreshing = false
         })
     }
+
 }

@@ -6,5 +6,5 @@ import retrofit2.Call
 import retrofit2.http.GET
 
 interface CountryInfoEntryPointApi{
-    suspend fun fetchCountryDetails(): CountryInformation
+    suspend fun fetchCountryDetails(pageLimit: Int): CountryInformation
 }
