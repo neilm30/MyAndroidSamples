@@ -12,12 +12,15 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.country.information.R
+import com.country.information.common.RowResponse
 import com.country.information.extensions.isConnectedToInternet
 import com.country.information.networking.model.response.Rows
 import com.country.information.uiscreens.adapater.CustomAdapter
 import kotlinx.android.synthetic.main.activity_recyclerview.*
 import org.koin.android.viewmodel.ext.android.sharedViewModel
+import org.koin.android.viewmodel.ext.android.viewModel
 
 
 /**
@@ -25,9 +28,8 @@ import org.koin.android.viewmodel.ext.android.sharedViewModel
  */
 class CountryListFragment : Fragment() {
 
-    private val mainViewModel: MainViewModel by sharedViewModel()
+    private val mainViewModel: MainViewModel by viewModel()
     private lateinit var listAdapter: CustomAdapter
-    private var rowsList = mutableListOf<Rows>()
     private var pageLimit = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,11 +65,10 @@ class CountryListFragment : Fragment() {
         }
 
         //getting swipe to refresh from xml
-        swipeRefreshLayout.apply {
+        swipeRefreshLayout?.apply {
             setOnRefreshListener {
                 // code to refresh the list here.calling swipeContainer.setRefreshing(false)
                 // once the network request has completed successfully. clear items before appending in the new ones
-                listAdapter.clearRowItems()
                 checkIfNetworkConnectionAvailable()
             }
         }
@@ -75,14 +76,14 @@ class CountryListFragment : Fragment() {
         subscribeToCountryListEvent()
     }
 
-    //
+    /* pagination to fetch more data based on page size.Triggered only when new data needs to be appended to the bottom of the list
+   make api call if it supports pagination and pass the page limit size if **/
     private fun initScrollListener() {
 
-        recyclerView_countrydetails.addOnScrollListener( object : EndlessRecyclerViewScrollListener(recyclerView_countrydetails.layoutManager as LinearLayoutManager) {
+        recyclerView_countrydetails.addOnScrollListener(object :
+            EndlessRecyclerViewScrollListener(recyclerView_countrydetails.layoutManager as LinearLayoutManager) {
             override fun onLoadMore(page: Int, totalItemsCount: Int) {
-                // Triggered only when new data needs to be appended to the bottom of the list
                 pageLimit = page
-                checkIfNetworkConnectionAvailable()
             }
         })
     }
@@ -93,7 +94,7 @@ class CountryListFragment : Fragment() {
         CustomAdapter().apply {
             listAdapter = this
             recyclerView_countrydetails.adapter = listAdapter
-            updateRowItems(rowsList)
+            updateCountryListItems()
         }
     }
 
@@ -122,7 +123,7 @@ class CountryListFragment : Fragment() {
             else -> {
                 textView.apply {
                     visibility = View.VISIBLE
-                    recyclerView_countrydetails.visibility = View.GONE
+                    recyclerView_countrydetails.visibility = View.INVISIBLE
                     text = getString(R.string.no_iternet_connection)
                     swipeRefreshLayout.isRefreshing = false
                 }
@@ -139,7 +140,7 @@ class CountryListFragment : Fragment() {
             (activity as AppCompatActivity?)?.supportActionBar?.title = it.second
 
             //the data is available, add new items to your adapter
-            listAdapter.updateRowItems(it.first)
+            listAdapter.updateCountryListItems(it.first)
 
             // dismiss the refresh loading
             swipeRefreshLayout.isRefreshing = false
@@ -153,5 +154,4 @@ class CountryListFragment : Fragment() {
             swipeRefreshLayout.isRefreshing = false
         })
     }
-
 }

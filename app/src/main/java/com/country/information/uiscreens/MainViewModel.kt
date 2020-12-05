@@ -2,58 +2,72 @@ package com.country.information.uiscreens
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.country.information.common.CountryDetailsResponse
+import com.country.information.common.RowResponse
 import com.country.information.coroutines.OnCancelException
 import com.country.information.coroutines.OnError
 import com.country.information.coroutines.OnSuccess
 import com.country.information.coroutines.ViewModelScope
 import com.country.information.networking.CountryInfoEntryPointApi
-import com.country.information.networking.model.response.CountryInformation
-import com.country.information.networking.model.response.Rows
+import com.country.information.utils.EspressoIdlingResource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.koin.core.KoinComponent
 
-class MainViewModel(private val apiRepository: CountryInfoEntryPointApi, private val countryTextMapper: CountryTextMapper) : ViewModel(), ViewModelScope {
+class MainViewModel(
+    private val apiRepository: CountryInfoEntryPointApi,
+    private val countryTextMapper: CountryTextMapper
+) : ViewModel(), ViewModelScope {
 
     // live data to post success data
-    val responseData = MutableLiveData<Pair<List<Rows>, String>>()
+    val responseData = MutableLiveData<Pair<List<RowResponse>, String>>()
 
     // live data to post error data
     val errorData = MutableLiveData<String>()
 
-     init {
-         createNetworkJob()
-     }
+    init {
+        EspressoIdlingResource.increment()
+        createNetworkJob()
+    }
 
-    /*synchronous network call which will run on the IO dispathcer.For asynchronous we can use "async"*/
-
-     fun createNetworkJob(pagelimit: Int = DEFAULT_REQUEST_ITEMS_SIZE) = launch(Dispatchers.IO) {
+    /**
+     * synchronous network call which will run on the IO dispathcer.For asynchronous we can use "async"
+     * @param pagelimit the page size to fetch from server for pagination
+     */
+    fun createNetworkJob(pagelimit: Int = DEFAULT_REQUEST_ITEMS_SIZE) = launch(Dispatchers.IO) {
         resultOf {
             apiRepository.fetchCountryDetails(pagelimit)
         }.let { result ->
-                when (result) {
-                    is OnSuccess<CountryInformation> -> handleResponseSuccess(result.get())
-                    is OnCancelException -> {
-                        handleResponseException(result.exception)
-                    }
-                    is OnError -> {
-                        handleResponseException(result.exception)
-                    }
+            when (result) {
+                is OnSuccess<CountryDetailsResponse> -> handleResponseSuccess(result.get())
+                is OnCancelException -> {
+                    handleResponseException(result.exception)
                 }
+                is OnError -> {
+                    handleResponseException(result.exception)
+                }
+            }
         }
     }
 
-    // handle success response and send it to observer
-    private fun handleResponseSuccess(countryInformation: CountryInformation) {
-        val rowList = countryInformation.rows
+    /**
+     * handle success response and send it to observer
+     * @param countryInformation holds the final response
+     */
+    private fun handleResponseSuccess(countryInformation: CountryDetailsResponse) {
+        val rowList = countryInformation.rowsItems
         if (rowList.isNullOrEmpty().not()) {
-            responseData.postValue(Pair(validateRowResponseList(rowList), countryInformation.title))
+            responseData.postValue(
+                Pair(
+                    validateRowResponseList(rowList),
+                    countryInformation.headerTitle
+                )
+            )
         }
+        EspressoIdlingResource.decrement()
     }
 
-    private fun validateRowResponseList(rowList: List<Rows>) = rowList.filterNot {
-        it.title.isNullOrEmpty() && it.description.isNullOrEmpty() && it.imageHref.isNullOrEmpty()
+    private fun validateRowResponseList(rowList: List<RowResponse>) = rowList.filterNot {
+        it.title.isNullOrEmpty() && it.description.isNullOrEmpty() && it.imageUrl.isNullOrEmpty()
     }
 
     // handle error response and send it to observer
@@ -62,7 +76,7 @@ class MainViewModel(private val apiRepository: CountryInfoEntryPointApi, private
         errorData.postValue(countryTextMapper.getErrorMessage())
     }
 
-    companion object{
+    companion object {
         const val DEFAULT_REQUEST_ITEMS_SIZE = 10
     }
 }

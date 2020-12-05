@@ -24,7 +24,7 @@ class ApiRepositoryTest : KoinTest {
         }
         runBlocking {
             val countryInformation = apiRepository.fetchCountryDetails(10)
-            Assert.assertTrue(countryInformation.title.isNotEmpty())
+            Assert.assertTrue(countryInformation.headerTitle.isNotEmpty())
         }
     }
 
@@ -33,7 +33,7 @@ class ApiRepositoryTest : KoinTest {
 
         runBlocking {
             val countryInformation = apiRepository.fetchCountryDetails(10)
-            Assert.assertTrue(countryInformation.rows.isNotEmpty())
+            Assert.assertTrue(countryInformation.rowsItems.isNotEmpty())
         }
 
     }

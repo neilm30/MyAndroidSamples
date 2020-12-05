@@ -1,10 +1,10 @@
 package com.country.information
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.country.information.common.CountryDetailsResponse
+import com.country.information.common.RowResponse
 import com.country.information.networking.ApiRepository
 import com.country.information.networking.CountryInfoEntryPointApi
-import com.country.information.networking.model.response.CountryInformation
-import com.country.information.networking.model.response.Rows
 import com.country.information.networking.retrofit.CountryInfoService
 import com.country.information.uiscreens.CountryTextMapper
 import com.country.information.uiscreens.MainViewModel
@@ -54,11 +54,13 @@ class MainViewModelTest : KoinTest {
             Mockito.`when`(apiRepositoryMock.fetchCountryDetails(10)).thenReturn(countrydetails)
             mainViewModel = MainViewModel(apiRepositoryMock, countryTextMapperMock)
             Thread.sleep(DELAY_IN_MILLIS)
-            Assert.assertEquals(mainViewModel.responseData.value?.second, countrydetails.title)
+            Assert.assertEquals(
+                mainViewModel.responseData.value?.second,
+                countrydetails.headerTitle
+            )
         }
 
     }
-
 
     @Test
     fun when_success_check_list_is_not_empty() {
@@ -70,19 +72,19 @@ class MainViewModelTest : KoinTest {
             Assert.assertNotNull(mainViewModel.responseData.value?.first.isNullOrEmpty().not())
             Assert.assertEquals(
                 mainViewModel.responseData.value?.first?.first()?.description,
-                countrydetails.rows.first().description
+                countrydetails.rowsItems.first().description
             )
         }
 
     }
 
-    val countrydetails = CountryInformation(
+    val countrydetails = CountryDetailsResponse(
         "About Canada",
         listOf(
-            Rows(
+            RowResponse(
                 title = "Beavers",
                 description = "Beavers are second only to humans in their ability to manipulate and change their environment. They can measure up to 1.3 metres long. A group of beavers is called a colony",
-                imageHref = "http://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/American_Beaver.jpg/220px-American_Beaver.jpg"
+                imageUrl = "http://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/American_Beaver.jpg/220px-American_Beaver.jpg"
             )
         )
 
