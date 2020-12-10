@@ -14,7 +14,7 @@ data class CountryInformation(
 
 fun CountryInformation.convertTo() = CountryDetailsResponse(
     headerTitle = title,
-    rowsItems = rows.asCountryDetails()
+    rowItems = rows.asCountryDetails()
 )
 
 private fun List<Rows>.asCountryDetails() =

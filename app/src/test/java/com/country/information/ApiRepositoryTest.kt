@@ -2,7 +2,6 @@ package com.country.information
 
 import com.country.information.di.appModule
 import com.country.information.networking.ApiRepository
-import com.country.information.networking.retrofit.CountryInfoService
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
@@ -23,7 +22,7 @@ class ApiRepositoryTest : KoinTest {
             modules(appModule)
         }
         runBlocking {
-            val countryInformation = apiRepository.fetchCountryDetails(10)
+            val countryInformation = apiRepository.fetchCountryDetails()
             Assert.assertTrue(countryInformation.headerTitle.isNotEmpty())
         }
     }
@@ -32,8 +31,8 @@ class ApiRepositoryTest : KoinTest {
     fun when_success_check_listofrows_is_not_empty() {
 
         runBlocking {
-            val countryInformation = apiRepository.fetchCountryDetails(10)
-            Assert.assertTrue(countryInformation.rowsItems.isNotEmpty())
+            val countryInformation = apiRepository.fetchCountryDetails()
+            Assert.assertTrue(countryInformation.rowItems.isNotEmpty())
         }
 
     }

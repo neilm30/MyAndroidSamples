@@ -1,6 +1,5 @@
 package com.country.information.uiscreens
 
-import EndlessRecyclerViewScrollListener
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,14 +11,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.country.information.R
-import com.country.information.common.RowResponse
 import com.country.information.extensions.isConnectedToInternet
-import com.country.information.networking.model.response.Rows
 import com.country.information.uiscreens.adapater.CustomAdapter
 import kotlinx.android.synthetic.main.activity_recyclerview.*
-import org.koin.android.viewmodel.ext.android.sharedViewModel
 import org.koin.android.viewmodel.ext.android.viewModel
 
 
@@ -30,7 +25,6 @@ class CountryListFragment : Fragment() {
 
     private val mainViewModel: MainViewModel by viewModel()
     private lateinit var listAdapter: CustomAdapter
-    private var pageLimit = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,11 +42,11 @@ class CountryListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initViews(view)
+        initViews()
     }
 
     // initialize views using kotlin extensions
-    private fun initViews(view: View) {
+    private fun initViews() {
         //getting recyclerview from xml
         recyclerView_countrydetails.apply {
             layoutManager = LinearLayoutManager(context)
@@ -61,33 +55,18 @@ class CountryListFragment : Fragment() {
             // initalize and set adapter
             initAdapter()
 
-            initScrollListener()
         }
 
         //getting swipe to refresh from xml
         swipeRefreshLayout?.apply {
             setOnRefreshListener {
-                // code to refresh the list here.calling swipeContainer.setRefreshing(false)
-                // once the network request has completed successfully. clear items before appending in the new ones
+                // code to refresh the list here.calling swipeContainer.setRefreshing(false) once the network request has completed successfully. clear items before appending in the new ones
                 checkIfNetworkConnectionAvailable()
             }
         }
 
         subscribeToCountryListEvent()
     }
-
-    /* pagination to fetch more data based on page size.Triggered only when new data needs to be appended to the bottom of the list
-   make api call if it supports pagination and pass the page limit size if **/
-    private fun initScrollListener() {
-
-        recyclerView_countrydetails.addOnScrollListener(object :
-            EndlessRecyclerViewScrollListener(recyclerView_countrydetails.layoutManager as LinearLayoutManager) {
-            override fun onLoadMore(page: Int, totalItemsCount: Int) {
-                pageLimit = page
-            }
-        })
-    }
-
 
     // initalize and set adapater.The list will be empty for the first time
     private fun initAdapter() {
@@ -102,8 +81,8 @@ class CountryListFragment : Fragment() {
     // add divider between rows
     private fun getItemDecoration(): DividerItemDecoration {
         val itemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
-        context?.let {
-            ContextCompat.getDrawable(it, R.drawable.custom_divider)?.let {
+        context?.let { context ->
+            ContextCompat.getDrawable(context, R.drawable.custom_divider)?.let {
                 itemDecoration.setDrawable(
                     it
                 )
@@ -116,12 +95,12 @@ class CountryListFragment : Fragment() {
     private fun checkIfNetworkConnectionAvailable() {
         when (activity?.baseContext?.isConnectedToInternet()) {
             true -> {
-                mainViewModel.createNetworkJob(pageLimit)
-                textView.visibility = View.GONE
+                mainViewModel.createNetworkJob()
+                textView_error.visibility = View.GONE
                 recyclerView_countrydetails.visibility = View.VISIBLE
             }
             else -> {
-                textView.apply {
+                textView_error.apply {
                     visibility = View.VISIBLE
                     recyclerView_countrydetails.visibility = View.INVISIBLE
                     text = getString(R.string.no_iternet_connection)
@@ -149,8 +128,8 @@ class CountryListFragment : Fragment() {
         // observe for any error response and show text with default message
         mainViewModel.errorData.observe(viewLifecycleOwner, Observer { errorText ->
             Toast.makeText(context, errorText, Toast.LENGTH_SHORT).show()
-            textView.text = errorText
-            textView.visibility = View.VISIBLE
+            textView_error.text = errorText
+            textView_error.visibility = View.VISIBLE
             swipeRefreshLayout.isRefreshing = false
         })
     }

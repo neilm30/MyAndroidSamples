@@ -4,7 +4,7 @@ package com.country.information.common
 
 data class CountryDetailsResponse(
     val headerTitle: String,
-    val rowsItems: List<RowResponse>
+    val rowItems: List<RowResponse>
 )
 
 data class RowResponse(

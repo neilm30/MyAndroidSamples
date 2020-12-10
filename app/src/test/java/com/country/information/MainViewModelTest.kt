@@ -5,7 +5,6 @@ import com.country.information.common.CountryDetailsResponse
 import com.country.information.common.RowResponse
 import com.country.information.networking.ApiRepository
 import com.country.information.networking.CountryInfoEntryPointApi
-import com.country.information.networking.retrofit.CountryInfoService
 import com.country.information.uiscreens.CountryTextMapper
 import com.country.information.uiscreens.MainViewModel
 import kotlinx.coroutines.Dispatchers
@@ -21,15 +20,13 @@ import org.mockito.Mockito
 
 @ExperimentalCoroutinesApi
 class MainViewModelTest : KoinTest {
-    val testDispatcher: TestCoroutineDispatcher = TestCoroutineDispatcher()
+    private val testDispatcher: TestCoroutineDispatcher = TestCoroutineDispatcher()
 
     @get:Rule
     var mainCoroutineRule: TestRule = InstantTaskExecutorRule()
 
     private var apiRepositoryMock: CountryInfoEntryPointApi =
         Mockito.mock(ApiRepository::class.java)
-    private var countryInfoServiceMock: CountryInfoService =
-        Mockito.mock(CountryInfoService::class.java)
     private var countryTextMapperMock: CountryTextMapper =
         Mockito.mock(CountryTextMapper::class.java)
 
@@ -38,7 +35,6 @@ class MainViewModelTest : KoinTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-
     }
 
     @After
@@ -51,7 +47,7 @@ class MainViewModelTest : KoinTest {
     fun when_success_check_title_is_not_empty() {
 
         runBlockingTest {
-            Mockito.`when`(apiRepositoryMock.fetchCountryDetails(10)).thenReturn(countrydetails)
+            Mockito.`when`(apiRepositoryMock.fetchCountryDetails()).thenReturn(countrydetails)
             mainViewModel = MainViewModel(apiRepositoryMock, countryTextMapperMock)
             Thread.sleep(DELAY_IN_MILLIS)
             Assert.assertEquals(
@@ -66,13 +62,13 @@ class MainViewModelTest : KoinTest {
     fun when_success_check_list_is_not_empty() {
 
         runBlockingTest {
-            Mockito.`when`(apiRepositoryMock.fetchCountryDetails(10)).thenReturn(countrydetails)
+            Mockito.`when`(apiRepositoryMock.fetchCountryDetails()).thenReturn(countrydetails)
             mainViewModel = MainViewModel(apiRepositoryMock, countryTextMapperMock)
             Thread.sleep(DELAY_IN_MILLIS)
             Assert.assertNotNull(mainViewModel.responseData.value?.first.isNullOrEmpty().not())
             Assert.assertEquals(
                 mainViewModel.responseData.value?.first?.first()?.description,
-                countrydetails.rowsItems.first().description
+                countrydetails.rowItems.first().description
             )
         }
 

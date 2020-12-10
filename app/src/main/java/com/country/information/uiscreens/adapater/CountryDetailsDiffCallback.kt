@@ -1,6 +1,7 @@
+package com.country.information.uiscreens.adapater
+
 import androidx.recyclerview.widget.DiffUtil
 import com.country.information.common.RowResponse
-import org.jetbrains.annotations.Nullable
 
 class CountryDetailsDiffCallback(
     private val oldList: List<RowResponse>,

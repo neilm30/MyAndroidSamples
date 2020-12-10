@@ -1,7 +1,6 @@
 package com.country.information.networking.retrofit
 
 import com.country.information.BuildConfig
-import com.country.information.networking.httpclient.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit

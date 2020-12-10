@@ -1,5 +1,6 @@
 package com.country.information.uiscreens
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.country.information.common.CountryDetailsResponse
@@ -18,24 +19,23 @@ class MainViewModel(
     private val countryTextMapper: CountryTextMapper
 ) : ViewModel(), ViewModelScope {
 
-    // live data to post success data
+    // livedata to post success data observed in fragment
     val responseData = MutableLiveData<Pair<List<RowResponse>, String>>()
 
-    // live data to post error data
+    // livedata to post error data observed in fragment
     val errorData = MutableLiveData<String>()
 
     init {
-        EspressoIdlingResource.increment()
+        EspressoIdlingResource.increment() // added for UI testing
         createNetworkJob()
     }
 
     /**
      * synchronous network call which will run on the IO dispathcer.For asynchronous we can use "async"
-     * @param pagelimit the page size to fetch from server for pagination
      */
-    fun createNetworkJob(pagelimit: Int = DEFAULT_REQUEST_ITEMS_SIZE) = launch(Dispatchers.IO) {
+    fun createNetworkJob() = launch(Dispatchers.IO) {
         resultOf {
-            apiRepository.fetchCountryDetails(pagelimit)
+            apiRepository.fetchCountryDetails()
         }.let { result ->
             when (result) {
                 is OnSuccess<CountryDetailsResponse> -> handleResponseSuccess(result.get())
@@ -54,7 +54,7 @@ class MainViewModel(
      * @param countryInformation holds the final response
      */
     private fun handleResponseSuccess(countryInformation: CountryDetailsResponse) {
-        val rowList = countryInformation.rowsItems
+        val rowList = countryInformation.rowItems
         if (rowList.isNullOrEmpty().not()) {
             responseData.postValue(
                 Pair(
@@ -66,22 +66,24 @@ class MainViewModel(
         EspressoIdlingResource.decrement()
     }
 
+    /**
+     * filter to return list of items for  which title ,description or image have values
+     * @param rowList list that holds recyclerview item data
+     */
     private fun validateRowResponseList(rowList: List<RowResponse>) = rowList.filterNot {
         it.title.isNullOrEmpty() && it.description.isNullOrEmpty() && it.imageUrl.isNullOrEmpty()
     }
 
     // handle error response and send it to observer
     private fun handleResponseException(exception: Throwable) {
-        exception.printStackTrace()
+        Log.i(TAG, "Exception message" + exception.printStackTrace())
         errorData.postValue(countryTextMapper.getErrorMessage())
     }
 
     companion object {
-        const val DEFAULT_REQUEST_ITEMS_SIZE = 10
+        val TAG = MainViewModel::class.java.canonicalName
     }
 }
-
-
 
 
 

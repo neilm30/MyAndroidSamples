@@ -2,7 +2,6 @@ package com.country.information.di
 
 import com.country.information.networking.ApiRepository
 import com.country.information.networking.CountryInfoEntryPointApi
-import com.country.information.networking.retrofit.CountryInfoApi
 import com.country.information.networking.retrofit.CountryInfoService
 import com.country.information.uiscreens.CountryTextMapper
 import com.country.information.uiscreens.MainViewModel

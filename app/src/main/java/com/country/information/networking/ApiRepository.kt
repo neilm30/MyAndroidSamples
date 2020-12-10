@@ -9,7 +9,7 @@ import org.koin.core.KoinComponent
 class ApiRepository(private val countryInfoService: CountryInfoService) : CountryInfoEntryPointApi,
     KoinComponent {
 
-    override suspend fun fetchCountryDetails(pageLimit: Int): CountryDetailsResponse {
+    override suspend fun fetchCountryDetails(): CountryDetailsResponse {
         val response = countryInfoService.service.fetchCountryDetails()
         if (response.isSuccessful) {
             response.body()?.let {

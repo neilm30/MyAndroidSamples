@@ -1,6 +1,5 @@
 package com.country.information.uiscreens.adapater
 
-import CountryDetailsDiffCallback
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.country.information.R
 import com.country.information.common.RowResponse
 import com.country.information.extensions.shareImageByUrl
-import com.country.information.networking.model.response.Rows
 import com.country.information.utils.EspressoIdlingResource
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_recyclerview.view.*
@@ -20,10 +18,13 @@ class CustomAdapter : RecyclerView.Adapter<CustomAdapter.CountryViewHolder>() {
 
     private var countryInformationList = mutableListOf<RowResponse>()
 
-    /*
-     add new items to the list
-     @ para
-     **/
+    //clear the list
+    private fun clearCountryListItems() = countryInformationList.clear()
+
+    /**
+     * add new items to the list
+     * @param rowObjects updated list fetched from server
+     */
     fun updateCountryListItems(rowObjects: List<RowResponse> = emptyList()) {
         val diffResult = DiffUtil.calculateDiff(
             CountryDetailsDiffCallback(
@@ -37,9 +38,6 @@ class CustomAdapter : RecyclerView.Adapter<CustomAdapter.CountryViewHolder>() {
         diffResult.dispatchUpdatesTo(this)
         EspressoIdlingResource.decrement()
     }
-
-    //clear the list
-    fun clearCountryListItems() = countryInformationList.clear()
 
     class CountryViewHolder(override val containerView: View) :
         RecyclerView.ViewHolder(containerView),

@@ -36,7 +36,7 @@ import org.junit.runner.RunWith
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 @RunWith(AndroidJUnit4ClassRunner::class)
-class FragmentAndReyclerViewTest {
+class FragmentAndRecyclerViewTest {
     // Preferred JUnit 4 mechanism of specifying the activity to be launched before each test
     @get:Rule
     var activityRule = ActivityScenarioRule(MainActivity::class.java)
@@ -69,7 +69,7 @@ class FragmentAndReyclerViewTest {
         onView(withId(R.id.button)).perform(click())
 
         onView(withId(R.id.recyclerView_countrydetails)).check(matches(isDisplayed()))
-        onView(withId(R.id.textView)).check(matches(not(isDisplayed())))
+        onView(withId(R.id.textView_error)).check(matches(not(isDisplayed())))
     }
 
     @Test
